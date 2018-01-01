@@ -1,10 +1,18 @@
-all: example1 gerdabServer.o web++.o
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+		HEAD := \"sdlheaders/mac.hpp\"
+  	CCFLAGS= -framework SDL2_mixer
+else
+		HEAD := \"sdlheaders/linux.hpp\"
+		CCFLAGS += -l SDL2_mixer
+endif
 
-example1: web++.o gerdabServer.o examples/example1.cpp
-		g++ -std=c++11 src/web++.o src/gerdabServer.o examples/example1.cpp -o example1.out
+all: example1 gerdab.o head
 
-gerdabServer.o: src/gerdabServer.cpp
-		g++ -std=c++11 -c src/gerdabServer.cpp -o src/gerdabServer.o
+example1: gerdab.o examples/example1.cpp
+		g++ -std=c++11 src/gerdab.o examples/example1.cpp $(CCFLAGS) -o example1.out
 
-web++.o: src/web++.cpp
-		g++ -std=c++11 -c src/web++.cpp -o src/web++.o
+gerdab.o: src/gerdabPlayer.cpp
+		g++ -std=c++11 -c src/gerdabPlayer.cpp -o src/gerdab.o
+head:
+		echo "#include "$(HEAD) > ./src/sdlHeaders.hpp
